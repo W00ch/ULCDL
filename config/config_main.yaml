@@ -1,0 +1,80 @@
+
+OUTPUT_DIR: exp_
+SAVE_CONFIG_NAME: config_AVT.yaml
+CKPTS_DIR: ./ULCDL/ckpts_ATV/
+TYPE: exp_3
+MANUAL_SEED: 1
+LOG_TITLE: Depression Detection with audio + visual + text
+
+DATA:
+  TRAIN_ROOT_DIR: ./DAIC_WOZ-generated_database_td/train/clipped_data/gender_balance/
+  VALIDATION_ROOT_DIR: ./DAIC_WOZ-generated_database_v2/validation/clipped_data/gender_balance/
+  TEST_ROOT_DIR: ./DAIC_WOZ-generated_database_v1/test/clipped_data/
+  USE_MEL_SPECTROGRAM: True
+  VISUAL_WITH_GAZE: True
+  PADDING: 512
+  BATCH_SIZE: 32  # TODO
+  NUM_WORKERS: 0  # TODO
+
+MODEL:
+  PHQ_THRESHOLD: 10
+  EPOCHS: 50
+  WEIGHTS:
+    TYPE: new
+    DATE:
+    PATH: model_weights
+    NAME:
+    CUSTOM_ABSOLUTE_PATH: ./ULCDL/ckpts_ATV/exp_3/exp_3_2023-05-05_104420_f1_score-0.9522.pt
+    INCLUDED: ['audio_net', 'visual_net', 'text_net', 'evaluator']
+  VISUAL_NET:
+    INPUT_DIM: 3
+    CONV_HIDDEN: 256
+    LSTM_HIDDEN: 256
+    OUTPUT_DIM: 256
+    NUM_LAYERS: 2
+    ACTIVATION: relu  # ['sigmoid', 'softmax', 'global', else]
+    NORM: bn          # ['bn', 'wn']: nn.BatchNorm1d, nn.utils.weight_norm
+    DROPOUT: 0.7
+  AUDIO_NET:
+    INPUT_DIM: 80
+    CONV_HIDDEN: 256
+    LSTM_HIDDEN: 256
+    OUTPUT_DIM: 256
+    NUM_LAYERS: 2
+    ACTIVATION: relu  # ['sigmoid', 'softmax', 'global', else]
+    NORM: bn          # ['bn', 'wn']: nn.BatchNorm1d, nn.utils.weight_norm
+    DROPOUT: 0.7
+  TEXT_NET:
+    INPUT_DIM: 768
+    CONV_HIDDEN: 256
+    LSTM_HIDDEN: 256
+    OUTPUT_DIM: 256
+    NUM_LAYERS: 2
+    ACTIVATION: relu  # ['sigmoid', 'softmax', 'global', else]
+    NORM: bn          # ['bn', 'wn']: nn.BatchNorm1d, nn.utils.weight_norm
+    DROPOUT: 0.7
+  EVALUATOR:
+    PREDICT_TYPE: subscores
+    INPUT_FEATURE_DIM:  512
+    CLASSES_RESOLUTION: 24
+    N_CLASSES: 4
+    N_SUBSCORES: 8
+    DROPOUT: 0.5
+    STD: 5
+    ATTENTION:
+      INPUT_DIM: 1
+      HIDDEN_DIM: 4
+      BASE_WIDTH: 256
+      FUSE_TYPE: DCAF   # ['DCAF', 'AFF', 'ADF']
+  CRITERION:
+    USE_SOFT_LABEL: True
+    USE_WEIGHTS: True
+  OPTIMIZER:
+    LR: 5e-4
+    WEIGHT_DECAY: 5e-5
+  SCHEDULER:
+    STEP_SIZE: 10
+    GAMMA: 0.90
+    
+
+
